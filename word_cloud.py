@@ -7,6 +7,7 @@ import time
 from io import BytesIO
 from typing import List
 
+import httpx
 import jieba
 import jieba.analyse
 import wordcloud
@@ -16,11 +17,11 @@ from nonebot.adapters.cqhttp import Bot, Event, unescape, permission, MessageSeg
 from nonebot.rule import to_me, Rule
 from nonebot.typing import T_State
 
-
 # 去除词汇
 remove_word = ['', '词云']
 # 忽略其他机器人
-bot_qq = [2825814139,2373378824]
+bot_qq = [2825814139, 2373378824]
+
 
 # 创建csv文件
 def create_csv(name: str, head: List[str]):
@@ -48,7 +49,7 @@ def write_csv(name: str, data_row):
 
 def chat_word_cloud() -> Rule:
     async def _chat_word_cloud(bot: "Bot", event: "Event", state: T_State) -> bool:
-        if event.__getattribute__('message_type') == 'private':
+        if event.__getattribute__('message_type') == 'private' or event.user_id in bot_qq:
             return False
         else:
             return True
@@ -68,7 +69,8 @@ def remove_cqcode(msg: str) -> str:
 @record_message.handle()
 async def handle_first_receive(bot: Bot, event: Event, state: dict):
     msg = remove_cqcode(event.__getattribute__("message"))
-
+    msg = re.sub('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]', '', msg)
+    msg = re.sub('我的词云|词云', '', msg)
     if msg and event.self_id != event.user_id:
         write_csv(str(event.group_id), [
             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
@@ -89,8 +91,20 @@ MY_WORD_CLOUD = on_command('mywordcloud',
                            )
 
 
-def read_csv(csv_name: str, user_id: str = None):
-
+async def read_csv(csv_name: str, user_id: str = None):
+    async with httpx.AsyncClient(proxies={}) as client:
+        try:
+            mydict = await client.get(
+                'https://cdn.jsdelivr.net/gh/Quan666/QQGroupWordCloud@master/data/wordcloud_bot/dict/mydict.txt')
+            all_stopwords = await client.get(
+            'https://cdn.jsdelivr.net/gh/Quan666/QQGroupWordCloud@master/data/wordcloud_bot/stopwords/all_stopwords.txt')
+            with open(f'data{os.sep}wordcloud_bot{os.sep}dict{os.sep}mydict.txt', 'w', encoding='utf-8') as f:
+                f.write(mydict.text)
+            with open(f'data{os.sep}wordcloud_bot{os.sep}stopwords{os.sep}all_stopwords.txt', 'w',
+                  encoding='utf-8') as f:
+                f.write(all_stopwords.text)
+        except Exception as e:
+            print(e)
     res = []
     with open(f'data{os.sep}{csv_name}', 'r', encoding="utf-8-sig", newline="") as f:
         jieba.load_userdict(
@@ -137,8 +151,8 @@ async def handle_first_receive(bot: Bot, event: Event, state: dict):
     # 像素不能超过 178956970
     # mk = imageio.imread("4.png")
     # image_colors = wordcloud.ImageColorGenerator(mk)
-    w = wordcloud.WordCloud(width=300,
-                            height=300,
+    w = wordcloud.WordCloud(width=3000,
+                            height=3000,
                             background_color='white',
                             font_path=f'data{os.sep}wordcloud_bot{os.sep}msyh.ttc',
                             # mask=mk,
@@ -147,7 +161,7 @@ async def handle_first_receive(bot: Bot, event: Event, state: dict):
                             # max_font_size=30
                             )
     try:
-        words = read_csv(csv_name=f'{event.group_id}.csv', user_id=str(event.user_id))
+        words = await read_csv(csv_name=f'{event.group_id}.csv', user_id=str(event.user_id))
     except:
         words = []
     if words:
@@ -177,7 +191,7 @@ async def handle_first_receive(bot: Bot, event: Event, state: dict):
                             # max_font_size=30
                             )
     try:
-        words = read_csv(csv_name=f'{event.group_id}.csv')
+        words = await read_csv(csv_name=f'{event.group_id}.csv')
     except:
         words = []
     if words:
