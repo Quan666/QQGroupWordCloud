@@ -7,3 +7,7 @@
     `pip install jieba`
     
     `pip install wordcloud`
+    
+### 欢迎维护字典（参照下图）、停用词
+
+![QQ截图20210422200529](https://user-images.githubusercontent.com/32663291/124692058-75df3d00-df0f-11eb-8e14-e37907bc1876.png)
