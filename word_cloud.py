@@ -95,9 +95,9 @@ async def read_csv(csv_name: str, user_id: str = None):
     async with httpx.AsyncClient(proxies={}) as client:
         try:
             mydict = await client.get(
-                'https://cdn.jsdelivr.net/gh/Quan666/QQGroupWordCloud@master/data/wordcloud_bot/dict/mydict.txt')
+                'https://cdn.jsdelivr.net/gh/Quan666/QQGroupWordCloud/data/wordcloud_bot/dict/mydict.txt')
             all_stopwords = await client.get(
-            'https://cdn.jsdelivr.net/gh/Quan666/QQGroupWordCloud@master/data/wordcloud_bot/stopwords/all_stopwords.txt')
+            'https://cdn.jsdelivr.net/gh/Quan666/QQGroupWordCloud/data/wordcloud_bot/stopwords/all_stopwords.txt')
             with open(f'data{os.sep}wordcloud_bot{os.sep}dict{os.sep}mydict.txt', 'w', encoding='utf-8') as f:
                 f.write(mydict.text)
             with open(f'data{os.sep}wordcloud_bot{os.sep}stopwords{os.sep}all_stopwords.txt', 'w',
