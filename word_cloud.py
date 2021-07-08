@@ -144,7 +144,7 @@ def get_pic_base64(content) -> str:
 
 @MY_WORD_CLOUD.handle()
 async def handle_first_receive(bot: Bot, event: Event, state: dict):
-    await MY_WORD_CLOUD.send('开始生成，请稍后')
+    await MY_WORD_CLOUD.send('开始生成，请稍候')
     if event.__getattribute__('message_type') == 'private':
         await MY_WORD_CLOUD.finish('请在群组中使用！')
 
