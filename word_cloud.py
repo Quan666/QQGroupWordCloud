@@ -12,6 +12,7 @@ import jieba.analyse
 import wordcloud
 from nonebot import on_command, on_message
 from nonebot.adapters.cqhttp import Bot, Event, unescape, MessageSegment
+from nonebot.plugin import on_keyword
 from nonebot.rule import to_me, Rule
 from nonebot.typing import T_State
 
@@ -77,15 +78,17 @@ async def handle_first_receive(bot: Bot, event: Event, state: dict):
         ])
 
 
-WORD_CLOUD = on_command('wordcloud',
-                        aliases={"词云"},
+WORD_CLOUD = on_keyword({'群词云'},
+                        # aliases={"词云"},
                         rule=to_me(),
-                        priority=5
+                        priority=4,
+                        block=True
                         )
-MY_WORD_CLOUD = on_command('mywordcloud',
-                           aliases={"我的词云"},
+MY_WORD_CLOUD = on_keyword({'我的词云'},
+                           # aliases={"我的词云"},
                            rule=to_me(),
-                           priority=5
+                           priority=4,
+                           block=True
                            )
 
 
