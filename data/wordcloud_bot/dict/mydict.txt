@@ -10,3 +10,4 @@ easy_install 3 eng
 Edu Trust认证 2000
 米哈游 900 n
 飞机杯 999 n
+口嗨
